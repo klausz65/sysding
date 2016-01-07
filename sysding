@@ -224,14 +224,14 @@ setup_aggregate() {
     fi
 
     # check if aggregate already exists
-    if dladm show-aggr ${def_link} 2>&1 >/dev/null; then
+    if dladm show-aggr ${def_link} >/dev/null 2>&1; then
         log_msg ERROR "aggregate interface ${def_link} already exists"
         return 1
     fi
 
     # check if each link exists
     for _link in ${def_links}; do
-        if ! dladm show-link ${_link} 2>&1 >/dev/null; then
+        if ! dladm show-link ${_link} >/dev/null 2>&1; then
             log_msg ERROR "link ${_link} does not exist"
             return 1
         fi
@@ -257,8 +257,8 @@ setup_vlan() {
 
     rt=0
 
-    def_link="$2"
-    def_vlan="$1"
+    def_link="$1"
+    def_vlan="$2"
     def_dev="$3"
 
     # check for numerical VLAN id
@@ -268,14 +268,14 @@ setup_vlan() {
     fi
 
     # check if device exists
-    if ! dladm show-link ${def_dev} 2>&1 >/dev/null; then
+    if ! dladm show-link ${def_dev} >/dev/null 2>&1; then
         log_msg ERROR "specified device ${def_dev} does not exist"
         return 1
     fi
 
     # check if vlan already exists
-    if dladm show-vlan ${vlan_link} 2>&1 >/dev/null; then
-        log_msg ERROR "specified VLAN link ${vlan_link} already exists"
+    if dladm show-vlan ${def_link} >/dev/null 2>&1; then
+        log_msg ERROR "specified VLAN link ${def_link} already exists"
         return 1
     fi
 
