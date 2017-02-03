@@ -26,6 +26,7 @@
 
 # function list
 # FIXME: to be done: setup_ns_ldap
+# FIXME: setup_ipmp for OI hipster
 ###
 
 runcheck() {
@@ -62,8 +63,7 @@ log_msg() {
     printf "%s %s %s: %s\n" "${my_tstamp}" "$(uname -n)" "${my_level}" "${my_msg}" | tee -a "${my_logfile}"
 }
 
-get_user_password() {                                                                                                                                                                                                    
-   # get user password hash
+get_user_password() {                                                                                               # get user password hash
    typeset def_username
    
    def_username=$1
@@ -85,6 +85,45 @@ setup_nfs4domain() {
 
     svccfg -s svc:/network/nfs/mapid:default "setprop nfs-props/nfsmapid_domain = astring: ${def_domain}"
     svccfg -s svc:/network/nfs/mapid:default refresh
+}
+
+setup_user_account() {
+    # create a specified user account
+    typeset def_username
+    typeset def_uid
+    typeset def_gid
+    typeset def_gecos
+    typeset def_home
+    typeset def_shell
+
+    def_username="$1"
+    def_uid="$2"
+    def_gid="$3"
+    def_gecos="$4"
+    def_home="$5"
+    def_shell="$6"
+    
+    rt=0
+
+    # the username is the primary lookup key, so we check it here.
+    # we do not check for uid, because multiple usernames for one uid are fine
+    if grep "^${def_username}:" >/dev/null 2>&1; then
+	log_msg ERROR "username ${def_username} already exists"
+	return 1
+    fi
+    
+    printf "%s:x:%s:%s:%s:%s:%s\n" "${def_username}" ${def_uid} ${def_gid} "${def_gecos}" "${def_home}" "${def_shell}" >>/etc/passwd
+    rt=$?
+    if [ ${rt} -gt 0 ]; then
+	log_msg ERROR "failed writing user record for ${def_username} to /etc/passwd..."
+	return ${rt}
+    fi
+    printf "%s:NP:::::::\n" "${def_username}" >>/etc/shadow
+    rt=$?
+    if [ ${rt} -gt 0 ]; then
+	log_msg ERROR "failed writing shadow entry for user ${def_username}, please check /etc/passwd and /etc/shadow!"
+    fi
+    return ${rt}
 }
 
 setup_user_password() {
@@ -171,6 +210,16 @@ setup_interface() {
     
     ipadm create-if ${def_nic}
 
+    # https://github.com/olbohlen/sysding/issues/2
+    # check if def_addr is IPv6 and prepare a addrconf interface first.
+    echo ${def_addr} | egrep ":" >/dev/null 2>&1
+    if [ $? -gt 0 ]; then
+	# it has at least one colon, it is a IPv6 addr
+	# so we create a addrconf object with the users specified object name plus
+	# the "link" suffix, for link-local-address
+	ipadm create-addr -T addrconf ${def_nic}/${def_obj}link
+    fi
+    
     # is def_addr specified as dhcp, then configure it that way :)
     if [ "x${def_addr}" == "xdhcp" ]; then
 	cmd_out=$( ipadm create-addr -T dhcp ${def_nic}/${def_obj} 2>&1 )
@@ -196,13 +245,23 @@ setup_route() {
    typeset def_tgt
    typeset def_dst
    typeset rt
+   typeset ipvers
   
    def_tgt=$1
    def_dst=$2
 
    rt=0
 
-   cmd_out=$( route -p add ${def_tgt} ${def_dst} 2>&1 )
+   # https://github.com/olbohlen/sysding/issues/1
+   # check if def_addr is IPv6 and force the -inet6 flag for route(1M)
+   echo ${def_dst} | egrep ":" >/dev/null 2>&1
+   if [ $? -gt 0 ]; then
+       # it has at least one colon, it is a IPv6 addr
+       ipvers="-inet6"
+   fi
+
+   
+   cmd_out=$( route -p add ${ipvers} ${def_tgt} ${def_dst} 2>&1 )
    if [ $? -gt 0 ]; then
        log_msg ERROR "failed to set up route: ${cmd_out}"
        rt=1
@@ -429,6 +488,37 @@ setup_locale() {
     return ${rt}
 }
 
+setup_zpool() {
+    # setup a zpool on specified disks
+    typeset def_devspec
+    typeset rt
+
+    def_devspec="$*"
+
+    cmd_out=$( zpool create ${def_devspec} 2>&1 )
+    if [ $? -gt 0 ]; then
+	log_msg ERROR "failed to set up zpool: ${cmd_out}"
+	rt=1
+    fi
+    
+    return ${rt}
+}
+
+setup_zfs() {
+    # setup a zfs
+    typeset def_opts
+    typeset rt
+
+    def_opts="$*"
+    
+    cmd_out=$( zfs create ${def_opts} 2>&1 )
+    if [ $? -gt 0 ]; then
+	log_msg ERROR "failed to set up zfs: ${cmd_out}"
+	rt=1
+    fi
+    
+    return ${rt}
+}
 
 ## main ##
 
