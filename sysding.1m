@@ -120,11 +120,11 @@ create VLAN device on given link with given VLAN ID
 .sp
 .ne 2
 .na
-\fB\fBsetup_ipmp "ipmp interface name" "nic1" "nic2"\fR\fR
+\fB\fBsetup_ipmp "ipmp interface name" "nic1" "nic2" "addr"\fR\fR
 .ad
 .sp .6
 .RS 4n
-configures a ipmp interfaces with the lower-interfaces "nic1" and "nic2"
+configures an ipmp group with the interfaces "nic1" and "nic2" and defines an IP adress "addr" for the ipmp group. See in \fBifconfig\fR(1) how to define the values for "addr". 
 .RE
 
 .sp
@@ -247,8 +247,8 @@ Configuration file
 .SH SEE ALSO
 .sp
 .LP
-\fBinit\fR(4), \fBlocale\fR(1), \fBpasswd\fR(4), \fBshadow\fR(4), \fRipadm\fB(1M),
-\fBresolv.conf\fR(4), \fBsmf\fR(5), \fBsvccfg\fR(1M), \fBksh\fR(1)
+\fBinit\fR(4), \fBlocale\fR(1), \fBpasswd\fR(4), \fBshadow\fR(4), \fRipadm\fB(1M), \fBifconfig\fR(1),
+\fBipmpstat\fR(1), \fBresolv.conf\fR(4), \fBsmf\fR(5), \fBsvccfg\fR(1M), \fBksh\fR(1)
 
 .SH NOTES
 .sp
@@ -259,5 +259,5 @@ reviewed after installation and used for other installations (like non-global zo
 .SH BUGS
 .sp
 .LP
-\fBsetup_ipmp\fR does not work on illumos based OS, since it depends on 
-\fBipadm create-ipmp\fR which is currently not implemented.
+Currently no bugs are known. 
+If you find a bug or have a feature request open an issue at https://github.com/OpenIndiana/sysding.
