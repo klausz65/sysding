@@ -213,7 +213,7 @@ setup_interface() {
     # https://github.com/olbohlen/sysding/issues/2
     # check if def_addr is IPv6 and prepare a addrconf interface first.
     echo ${def_addr} | egrep ":" >/dev/null 2>&1
-    if [ $? -gt 0 ]; then
+    if [ $? -eq 0 ]; then
 	# it has at least one colon, it is a IPv6 addr
 	# so we create a addrconf object with the users specified object name plus
 	# the "link" suffix, for link-local-address
@@ -253,9 +253,9 @@ setup_route() {
    rt=0
 
    # https://github.com/olbohlen/sysding/issues/1
-   # check if def_addr is IPv6 and force the -inet6 flag for route(1M)
+   # check if def_dst is IPv6 and force the -inet6 flag for route(1M)
    echo ${def_dst} | egrep ":" >/dev/null 2>&1
-   if [ $? -gt 0 ]; then
+   if [ $? -eq 0 ]; then
        # it has at least one colon, it is a IPv6 addr
        ipvers="-inet6"
    fi
