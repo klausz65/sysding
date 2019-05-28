@@ -26,7 +26,6 @@
 
 # function list
 # FIXME: to be done: setup_ns_ldap
-# FIXME: setup_ipmp for OI hipster
 ###
 
 runcheck() {
@@ -159,28 +158,62 @@ setup_user_password() {
 }
 
 setup_ipmp() {
-    # set up ipmp on already configured NICs (setup_interface needs to be run first for lower links)
+    # with ipadm create-ipmp: set up ipmp on already configured NICs (setup_interface needs to be run first for lower links)
+    # w/o  ipadm create-ipmp: set up ipmp on unplumbed NICs the old fashioned way
+
     typeset def_ipmp
     typeset def_nica
     typeset def_nicb
+    typeset def_addr # address with prefix/cidr netmask
     typeset cmd_out
     typeset rt
 
-    def_ipmp=$1
-    def_nica=$2
-    def_nicb=$3
+    def_ipmp="$1"
+    def_nica="$2"
+    def_nicb="$3"
+    def_addr="$4"
 
     rt=0
 
-    cmd_out=$( ipadm create-ipmp -i ${def_nica},${def_nicb} ${def_ipmp} 2>&1 )
-    if [ $? -gt 0 ]; then
-	log_msg ERROR "creating IPMP failed with: ${cmd_out}"
-	rt=1
+    # ipadm supports ipadm create-ipmp
+    if [ ipadm -h 2>&1|grep -c 'create-ipmp' ]; then
+      cmd_out=$( ipadm create-ipmp -i ${def_nica},${def_nicb} ${def_ipmp} 2>&1 )
+      if [ $? -gt 0 ]; then
+        log_msg ERROR "creating IPMP failed with: ${cmd_out}"
+        rt=1
+      fi
+    else
+      # ipmp must be created the old fashioned way
+      cmd_out=$( ifconfig ${def_ipmp} ipmp group ${def_ipmp} 2>&1 )
+      if [ $? -gt 0 ]; then
+          log_msg ERROR "failed to plumb ipmp group ${def_ipmp}: ${cmd_out}"
+          rt=1
+      fi
+      # just wait some seconds to have the ipmp group available
+      cmd_out=$( ifconfig ${def_nica} plumb group ${def_ipmp} up 2>&1 )
+      if [ $? -gt 0 ]; then
+          log_msg ERROR "failed to add ipmp link ${def_nica}: ${cmd_out}"
+          rt=1
+      fi
+      cmd_out=$( ifconfig ${def_nicb} plumb group ${def_ipmp} up 2>&1 )
+      if [ $? -gt 0 ]; then
+          log_msg ERROR "failed to add ipmp link ${def_nicb}: ${cmd_out}"
+          rt=1
+      fi
+      cmd_out=$( ifconfig ${def_ipmp}  group ${def_ipmp} ${def_addr} up 2>&1 )
+      if [ $? -gt 0 ]; then
+          log_msg ERROR "failed to create IP address on ipmp group: ${cmd_out}"
+          rt=1
+      fi
+      if [ ${rt} -eq 0 ]; then
+        echo group ${def_ipmp} up>/etc/hostname.${def_nica}
+        echo group ${def_ipmp} up>/etc/hostname.${def_nicb}
+        echo ipmp group ${def_ipmp}>/etc/hostname.${def_ipmp}
+        echo group  ${def_ipmp} ${def_addr} up>>/etc/hostname.${def_ipmp}
+      fi
     fi
-    cmd_out=""
-    
+    cmod_out=""
     return ${rt}
-
 }
 
 setup_interface() {
