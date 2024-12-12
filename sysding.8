@@ -4,7 +4,7 @@
 .\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE or http://www.opensolaris.org/os/licensing.  See the License for the specific language governing permissions and limitations under the License.
 .\" When distributing Covered Code, include this CDDL HEADER in each file and include the License file at usr/src/OPENSOLARIS.LICENSE.  If applicable, add the following below this CDDL HEADER, with the fields enclosed by brackets "[]" replaced with your own identifying information: Portions Copyright [yyyy] [name of copyright owner]
 
-.TH SYSDING 1M "10 Dec 2015" "" "System Administration Commands"
+.TH SYSDING 8 "12 Dec 2024" "" "System Administration Commands"
 .SH NAME
 sysding \- system configuration, replaces sysidtool
 .SH SYNOPSIS
@@ -16,7 +16,7 @@ sysding \- system configuration, replaces sysidtool
 .SH DESCRIPTION
 .sp
 .LP
-\fBsysding\fR will be executed during initial systemboot by the \fBsmf\fR(5) service 
+\fBsysding\fR will be executed during initial systemboot by the \fBsmf\fR(7) service 
 \fBsvc:/system/sysding:system\fR.
 It will read (actually source) a file called \fB/etc/sysding.conf\fR and configure the system.
 The following methods are supported currently:
@@ -84,7 +84,7 @@ sets users "username" password-hash to the specified one in "hash"
 .sp .6
 .RS 4n
 configures the specified NIC "nic" for IP. "nic" may be the alias "PRIMARY" which refers to the first NIC found by dladm. If "addr" is the special value "dhcp" it will configure a dhcp-address.
-The "addr-object suffix" is the suffix given after the nic-name in the address-object (see \fRipadm\fB(1M)).
+The "addr-object suffix" is the suffix given after the nic-name in the address-object (see \fRipadm\fB(8)).
 .RE
 
 .sp
@@ -124,7 +124,7 @@ create VLAN device on given link with given VLAN ID
 .ad
 .sp .6
 .RS 4n
-configures an ipmp group with the interfaces "nic1" and "nic2" and defines an IP adress "addr" for the ipmp group. See in \fBifconfig\fR(1) how to define the values for "addr". 
+configures an ipmp group with the interfaces "nic1" and "nic2" and defines an IP adress "addr" for the ipmp group. See in \fBifconfig\fR(8) how to define the values for "addr". 
 .RE
 
 .sp
@@ -247,8 +247,8 @@ Configuration file
 .SH SEE ALSO
 .sp
 .LP
-\fBinit\fR(4), \fBlocale\fR(1), \fBpasswd\fR(4), \fBshadow\fR(4), \fRipadm\fB(1M), \fBifconfig\fR(1),
-\fBipmpstat\fR(1), \fBresolv.conf\fR(4), \fBsmf\fR(5), \fBsvccfg\fR(1M), \fBksh\fR(1)
+\fBinit\fR(5), \fBlocale\fR(1), \fBpasswd\fR(5), \fBshadow\fR(5), \fRipadm\fB(8), \fBifconfig\fR(8),
+\fBipmpstat\fR(8), \fBresolv.conf\fR(5), \fBsmf\fR(7), \fBsvccfg\fR(8), \fBksh\fR(1)
 
 .SH NOTES
 .sp

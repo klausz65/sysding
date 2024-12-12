@@ -37,7 +37,7 @@
         <loctext xml:lang='C'>sysding</loctext>
       </common_name>
       <documentation>
-        <manpage title='sysding' section='1M' manpath='/usr/man'/>
+        <manpage title='sysding' section='8' manpath='/usr/man'/>
       </documentation>
     </template>
   </service>
