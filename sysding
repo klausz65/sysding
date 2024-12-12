@@ -286,7 +286,7 @@ setup_route() {
    rt=0
 
    # https://github.com/olbohlen/sysding/issues/1
-   # check if def_dst is IPv6 and force the -inet6 flag for route(1M)
+   # check if def_dst is IPv6 and force the -inet6 flag for route(8)
    echo ${def_dst} | egrep ":" >/dev/null 2>&1
    if [ $? -eq 0 ]; then
        # it has at least one colon, it is a IPv6 addr

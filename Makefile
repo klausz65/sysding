@@ -3,22 +3,22 @@ INSTALL ?= /usr/gnu/bin/install
 all:
 
 install: all
-	$(INSTALL) -d $(DESTDIR)/usr/share/man/man1m
+	$(INSTALL) -d $(DESTDIR)/usr/share/man/man8
 	$(INSTALL) -d $(DESTDIR)/lib/svc/manifest/system
 	$(INSTALL) -d $(DESTDIR)/lib/svc/method
 	$(INSTALL) -d $(DESTDIR)/etc
-	$(INSTALL) -m 444 sysding.1m $(DESTDIR)/usr/share/man/man1m
+	$(INSTALL) -m 444 sysding.8 $(DESTDIR)/usr/share/man/man8
 	$(INSTALL) -m 644 sysding.conf $(DESTDIR)/etc
 	$(INSTALL) -m 444 sysding.xml $(DESTDIR)/lib/svc/manifest/system
 	$(INSTALL) -m 555 sysding $(DESTDIR)/lib/svc/method/sysding
 
 ipspkg:
 	rm -rf proto_install
-	mkdir -p proto_install/usr/share/man/man1m
+	mkdir -p proto_install/usr/share/man/man8
 	mkdir -p proto_install/lib/svc/manifest/system
 	mkdir -p proto_install/lib/svc/method
 	mkdir -p proto_install/etc
-	ln sysding.1m proto_install/usr/share/man/man1m/sysding.1m
+	ln sysding.8 proto_install/usr/share/man/man8/sysding.8
 	ln sysding.conf proto_install/etc/sysding.conf
 	ln sysding.xml proto_install/lib/svc/manifest/system/sysding.xml
 	ln sysding proto_install/lib/svc/method/sysding
